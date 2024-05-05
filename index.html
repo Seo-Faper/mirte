@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            position: relative;
+            z-index: 1;
+        }
+        td {
+            border: 1px solid black;
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        /* CSS로 셀이 선택되었음을 표시 */
+        .selected {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table id="myTable">
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </table>
+    <svg id="mySvg" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                    refX="0" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="red" />
+            </marker>
+        </defs>
+    </svg>
+    <script>
+        const table = document.getElementById('myTable');
+        const svg = document.getElementById('mySvg');
+        let lastClickedCell = null;  // 마지막으로 클릭된 셀을 저장
+
+        table.addEventListener('click', function(e) {
+            if (e.target.tagName === 'TD') {
+                const currentCell = e.target;
+                currentCell.classList.add('selected');
+
+                if (lastClickedCell) {
+                    // 이전 셀이 있으면 새로운 셀과 연결하는 선을 그립니다.
+                    drawLine(lastClickedCell, currentCell);
+                }
+
+                // 현재 클릭된 셀을 '마지막 클릭된 셀'로 업데이트
+                lastClickedCell = currentCell;
+
+                // 몇 초 후에 선택 효과를 제거
+                setTimeout(() => {
+                    currentCell.classList.remove('selected');
+                }, 500);
+            }
+        });
+
+        function drawLine(cell1, cell2) {
+            const rect1 = cell1.getBoundingClientRect();
+            const rect2 = cell2.getBoundingClientRect();
+            const x1 = rect1.left + rect1.width / 2 - table.getBoundingClientRect().left;
+            const y1 = rect1.top + rect1.height / 2 - table.getBoundingClientRect().top;
+            const x2 = rect2.left + rect2.width / 2 - table.getBoundingClientRect().left;
+            const y2 = rect2.top + rect2.height / 2 - table.getBoundingClientRect().top;
+
+            // 새로운 선 생성 및 화살표 마커 적용
+            const newLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            newLine.setAttribute('x1', x1);
+            newLine.setAttribute('y1', y1);
+            newLine.setAttribute('x2', x2);
+            newLine.setAttribute('y2', y2);
+            newLine.setAttribute('stroke', 'red');
+            newLine.setAttribute('stroke-width', '2');
+            newLine.setAttribute('marker-end', 'url(#arrowhead)'); // 화살표 머리 추가
+
+            // SVG에 선 추가
+            svg.appendChild(newLine);
+        }
+    </script>
+</body>
+</html>
